@@ -1,0 +1,135 @@
+-- Tạo database nếu chưa có
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'ViPhamGiaoThong')
+BEGIN
+    CREATE DATABASE ViPhamGiaoThong;
+END
+GO
+
+USE ViPhamGiaoThong;
+GO
+
+-- ==============================================
+-- 0. XÓA BẢNG CŨ (NẾU CÓ) ĐỂ RESET DỮ LIỆU
+-- ==============================================
+-- Xóa các bảng con (chứa Foreign Key) trước
+DROP TABLE IF EXISTS HinhAnhChungCu;
+DROP TABLE IF EXISTS HoSoViPham;
+DROP TABLE IF EXISTS PhuongTien;
+-- Xóa các bảng cha 
+DROP TABLE IF EXISTS ChuXe;
+DROP TABLE IF EXISTS LoiViPham;
+GO
+
+-- ==============================================
+-- 1. TẠO CẤU TRÚC BẢNG (TABLES)
+-- ==============================================
+-- 1. Bảng Chủ Xe
+CREATE TABLE ChuXe (
+    MaChuXe VARCHAR(50) PRIMARY KEY,
+    HoTen NVARCHAR(100) NOT NULL,
+    CCCD VARCHAR(12) NOT NULL UNIQUE,
+    SoDienThoai VARCHAR(10),
+    DiaChi NVARCHAR(100)
+);
+
+-- 2. Bảng Phương Tiện
+CREATE TABLE PhuongTien (
+    BienSoXe VARCHAR(50) PRIMARY KEY,
+    MaChuXe VARCHAR(50) NOT NULL,
+    LoaiXe NVARCHAR(50),
+    NhanHieu VARCHAR(50),
+    MauSac NVARCHAR(50),
+    FOREIGN KEY (MaChuXe) REFERENCES ChuXe(MaChuXe)
+);
+
+-- 3. Bảng Lỗi Vi Phạm
+CREATE TABLE LoiViPham (
+    MaLoi VARCHAR(50) PRIMARY KEY,
+    TenLoi NVARCHAR(255) NOT NULL,
+    MucPhatTien DECIMAL(12,2) NOT NULL CHECK (MucPhatTien > 0),
+    HinhThucPhatBoSung NVARCHAR(255)
+);
+
+-- 4. Bảng Hồ Sơ Vi Phạm
+CREATE TABLE HoSoViPham (
+    MaHoSo VARCHAR(50) PRIMARY KEY,
+    BienSoXe VARCHAR(50) NOT NULL,
+    MaLoi VARCHAR(50) NOT NULL,
+    ThoiGianViPham DATETIME NOT NULL CHECK (ThoiGianViPham <= GETDATE()),
+    DiaDiemViPham NVARCHAR(255) NOT NULL,
+    TrangThai NVARCHAR(50) DEFAULT N'Chưa nộp phạt' CHECK (TrangThai IN (N'Chưa nộp phạt', N'Đã nộp phạt')),
+    FOREIGN KEY (BienSoXe) REFERENCES PhuongTien(BienSoXe),
+    FOREIGN KEY (MaLoi) REFERENCES LoiViPham(MaLoi)
+);
+
+-- 5. Bảng Hình Ảnh Chứng Cứ
+CREATE TABLE HinhAnhChungCu (
+    MaHinhAnh VARCHAR(50) PRIMARY KEY,
+    MaHoSo VARCHAR(50) NOT NULL UNIQUE,
+    URL_HinhAnh VARCHAR(500) NOT NULL,
+    GhiChu NVARCHAR(255),
+    NgayTaiLen DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (MaHoSo) REFERENCES HoSoViPham(MaHoSo) ON DELETE CASCADE
+);
+GO
+
+-- ==============================================
+-- 2. THÊM DỮ LIỆU MẪU (Bao gồm dữ liệu cũ đã fix font & dữ liệu mới)
+-- ==============================================
+
+-- THÊM CHỦ XE
+INSERT INTO ChuXe (MaChuXe, HoTen, CCCD, SoDienThoai, DiaChi) VALUES 
+('CX001', N'Nguyễn Văn A', '079090123456', '0901234567', N'123 Lê Lợi, Quận 1, TP.HCM'),
+('CX002', N'Trần Thị B', '079090654321', '0912345678', N'456 Trần Hưng Đạo, Quận 5, TP.HCM'),
+('CX003', N'Trần Quang Đại', '001090123456', '0987654321', N'15 Trần Phú, Hà Đông, Hà Nội'),
+('CX004', N'Lê Hương Giang', '030190654321', '0933445566', N'72 Nguyễn Trãi, Thanh Xuân, Hà Nội'),
+('CX005', N'Phạm Minh Tuấn', '048090112233', '0909090909', N'KĐT Vinaconex, Nam Từ Liêm, Hà Nội');
+
+-- THÊM PHƯƠNG TIỆN
+INSERT INTO PhuongTien (BienSoXe, MaChuXe, LoaiXe, NhanHieu, MauSac) VALUES 
+('51F-123.45', 'CX001', N'Ô tô con', 'Toyota', N'Trắng'),
+('59T1-987.65', 'CX002', N'Xe máy', 'Honda', N'Đỏ'),
+('30G-999.99', 'CX003', N'Ô tô con', 'Mazda', N'Đỏ'),
+('29V1-456.78', 'CX003', N'Xe máy', 'Yamaha', N'Đen'),
+('30K-111.22', 'CX004', N'Ô tô con', 'Kia', N'Trắng'),
+('29H-888.88', 'CX004', N'Xe bán tải', 'Ford', N'Cam'),
+('29C-333.44', 'CX005', N'Xe tải', 'Hino', N'Xanh biển'),
+('59S2-111.11', 'CX001', N'Xe máy', 'Vespa', N'Trắng');
+
+-- THÊM LỖI VI PHẠM
+INSERT INTO LoiViPham (MaLoi, TenLoi, MucPhatTien, HinhThucPhatBoSung) VALUES 
+('L01', N'Vượt đèn đỏ', 5000000, N'Tước GPLX 2 tháng'),
+('L02', N'Chạy quá tốc độ (từ 10-20km/h)', 3000000, N'Không'),
+('L03', N'Đi sai làn đường', 2000000, N'Tước GPLX 1 tháng'),
+('L04', N'Không đội mũ bảo hiểm', 500000, N'Không'),
+('L05', N'Đi ngược chiều trên đường có biển cấm', 1500000, N'Tước GPLX 2 tháng'),
+('L06', N'Vi phạm nồng độ cồn (Vượt quá 0.4mg/l khí thở)', 7000000, N'Tước GPLX 23 tháng, Tạm giữ xe 7 ngày'),
+('L07', N'Dừng đỗ xe sai quy định', 900000, N'Không');
+
+-- THÊM HỒ SƠ VI PHẠM
+INSERT INTO HoSoViPham (MaHoSo, BienSoXe, MaLoi, ThoiGianViPham, DiaDiemViPham, TrangThai) VALUES 
+('HS001', '51F-123.45', 'L01', '2023-10-15 08:30:00', N'Ngã tư Điện Biên Phủ - Đinh Tiên Hoàng', N'Chưa nộp phạt'),
+('HS002', '59T1-987.65', 'L02', '2023-10-20 14:15:00', N'Đại lộ Võ Văn Kiệt', N'Đã nộp phạt'),
+('HS003', '30G-999.99', 'L02', '2024-01-15 10:20:00', N'Cao tốc Pháp Vân - Cầu Giẽ', N'Chưa nộp phạt'),
+('HS004', '29V1-456.78', 'L04', '2024-02-10 07:45:00', N'Ngã tư Quang Trung - Lê Trọng Tấn', N'Đã nộp phạt'),
+('HS005', '30K-111.22', 'L05', '2024-03-05 22:15:00', N'Đường Khuất Duy Tiến', N'Chưa nộp phạt'),
+('HS006', '29C-333.44', 'L03', '2023-12-20 14:00:00', N'Vành đai 3 trên cao', N'Đã nộp phạt'),
+('HS007', '29H-888.88', 'L07', '2024-04-01 09:30:00', N'Trước cổng bệnh viện Bạch Mai', N'Chưa nộp phạt'),
+('HS008', '51F-123.45', 'L06', '2024-04-10 23:45:00', N'Chốt kiểm tra ngã tư Hàng Xanh', N'Chưa nộp phạt'),
+('HS009', '59S2-111.11', 'L04', '2024-04-12 08:00:00', N'Đường Phạm Văn Đồng', N'Chưa nộp phạt');
+
+-- THÊM HÌNH ẢNH CHỨNG CỨ (Mỗi hồ sơ 1 ảnh, URL đơn giản: ha001.jpg, ha002.jpg, ...)
+INSERT INTO HinhAnhChungCu (MaHinhAnh, MaHoSo, URL_HinhAnh, GhiChu) VALUES 
+('HA001', 'HS001', 'ha001.jpg', N'Vượt đèn đỏ - Ngã tư Điện Biên Phủ'),
+('HA002', 'HS002', 'ha002.jpg', N'Chạy quá tốc độ - Đại lộ Võ Văn Kiệt'),
+('HA003', 'HS003', 'ha003.jpg', N'Chạy quá tốc độ - Cao tốc Pháp Vân'),
+('HA004', 'HS004', 'ha004.jpg', N'Không đội mũ bảo hiểm'),
+('HA005', 'HS005', 'ha005.jpg', N'Đi ngược chiều - Đường Khuất Duy Tiến'),
+('HA006', 'HS006', 'ha006.jpg', N'Đi sai làn đường - Vành đai 3'),
+('HA007', 'HS007', 'ha007.jpg', N'Dừng đỗ sai quy định - Bệnh viện Bạch Mai'),
+('HA008', 'HS008', 'ha008.jpg', N'Vi phạm nồng độ cồn - Chốt kiểm tra'),
+('HA009', 'HS009', 'ha009.jpg', N'Không đội mũ bảo hiểm - Đường Phạm Văn Đồng');
+('HA010', 'HS010', 'ha010.jpg', N'Chạy quá tốc độ - Ngã tư Định Công'),
+('HA011', 'HS011', 'ha011.jpg', N'Không đội mũ bảo hiểm - Khuất Duy Tiến'),
+('HA012', 'HS012', 'ha012.jpg', N'Đi sai làn đường - Ngã Tư Bạch Mai');
+GO

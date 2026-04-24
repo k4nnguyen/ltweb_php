@@ -1,0 +1,19 @@
+admin_vi_pham/
+    ├── admin/                 # Khu vực dành riêng cho Admin (cần login)
+    │   ├── login.php          # Trang đăng nhập Admin
+    │   ├── index.php          # Dashboard thống kê
+    │   └── manage.php         # Trang thêm/sửa/xóa lỗi vi phạm
+    ├── ajax/                  # Chứa các file PHP chỉ để xử lý request từ AJAX (trả về JSON)
+    │   ├── fetch_vehicle.php  # Xử lý tìm kiếm biển số xe
+    │   └── auto_suggest.php   # Xử lý tự động gợi ý biển số
+    ├── assets/                # Chứa tài nguyên tĩnh
+    │   ├── css/               # File CSS custom (ngoài Bootstrap)
+    │   ├── js/                # File Javascript (chứa code gọi AJAX)
+    │   └── img/               # Hình ảnh
+    ├── config/                
+    │   └── database.php       # File chứa duy nhất code kết nối SQL Server
+    ├── includes/              # Chứa các thành phần dùng chung (để dùng lệnh require)
+    │   ├── header.php         # Thẻ <head>, link Bootstrap
+    │   ├── footer.php         # Script cuối trang
+    │   └── navbar.php         # Thanh điều hướng
+    └── index.php              # Trang chủ dành cho người dân tra cứu

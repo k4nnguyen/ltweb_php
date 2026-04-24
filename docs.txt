@@ -1,0 +1,105 @@
+BÁO CÁO PHÂN TÍCH VÀ THIẾT KẾ CƠ SỞ DỮ LIỆU
+Dự án: Hệ thống Tra cứu phương tiện vi phạm giao thông (Phạt nguội)
+I. Giới Thiệu Tổng Quan
+Trong bối cảnh chuyển đổi số và ứng dụng công nghệ vào quản lý trật tự an toàn giao thông, việc tự động hóa quá trình ghi nhận và xử lý vi phạm (đặc biệt là hình thức phạt nguội qua camera) đang trở nên phổ biến.
+Hệ thống Tra cứu phương tiện vi phạm giao thông được xây dựng nhằm mục đích cung cấp một nền tảng tập trung, cơ quan chức năng dễ dàng tra cứu lịch sử vi phạm, tình trạng nộp phạt và xem lại hình ảnh/video bằng chứng chỉ thông qua thao tác nhập biển số xe. Trọng tâm của bài toán là thiết kế một cơ sở dữ liệu tối ưu, đảm bảo chuẩn hóa, hạn chế dư thừa dữ liệu và đáp ứng tốc độ truy xuất nhanh chóng với lượng dữ liệu lớn.
+II. Phân Tích Nghiệp Vụ Chuyên Môn (Business Logic)
+Trước khi tiến hành mô hình hóa dữ liệu, quy trình nghiệp vụ thực tế của hệ thống được phân tích theo ngôn ngữ tự nhiên như sau:
+Quản lý định danh và sở hữu: Mỗi người dân tham gia giao thông đều có thông tin cá nhân (CCCD, Họ tên). Một người dân có quyền sở hữu hợp pháp nhiều phương tiện khác nhau (ô tô, xe máy,...). Tuy nhiên, để đảm bảo tính pháp lý, tại một thời điểm mỗi chiếc xe (được định danh bằng một biển số duy nhất) chỉ do một người đứng tên làm chủ.
+Chuẩn hóa khung hình phạt: Cơ quan chức năng ban hành một bộ luật quy định các lỗi vi phạm (ví dụ: Vượt đèn đỏ, Chạy quá tốc độ, Đi sai làn đường) cùng với mức phạt tiền tương ứng. Danh mục lỗi này là cố định và được dùng chung cho mọi phương tiện vi phạm.
+Ghi nhận vi phạm (Lập biên bản/Hồ sơ): Khi một chiếc xe lưu thông trên đường và vi phạm luật, hệ thống camera hoặc CSGT sẽ ghi nhận lại sự kiện này. Một chiếc xe có thể vi phạm nhiều lần vào các ngày khác nhau. Mỗi lần vi phạm sẽ được lập thành một "Hồ sơ vi phạm" riêng biệt. Hồ sơ này phải ghi rõ xe nào vi phạm, vi phạm lỗi gì, ở đâu, lúc mấy giờ và tình trạng đã nộp phạt hay chưa.
+Lưu trữ bằng chứng: Để đảm bảo tính minh bạch và thuyết phục người vi phạm, mỗi hồ sơ vi phạm cần được đính kèm các tài liệu chứng minh. Một lần vi phạm có thể có nhiều bằng chứng (ví dụ: ảnh góc rộng thấy bối cảnh, ảnh zoom cận biển số, hoặc video trích xuất từ camera). Nếu hồ sơ vi phạm bị hủy bỏ, các bằng chứng này cũng sẽ hết giá trị.
+III. Thiết Kế Các Thực Thể Dữ Liệu (Data Entities)
+Từ quá trình phân tích nghiệp vụ trên, hệ thống được thiết kế theo mô hình quan hệ (Relational Model) đảm bảo chuẩn hóa 3NF, bao gồm 5 bảng thực thể chính sau:
+1. Bảng ChuXe (Thông tin chủ phương tiện)
+Chức năng: Chứa thông tin định danh của người đứng tên sở hữu phương tiện.
+Khóa chính (PK): MaChuXe
+Các trường thông tin chi tiết: * MaChuXe (varchar 50): Mã định danh chủ xe.
+HoTen (nvarchar 100): Họ và tên chủ xe.
+CCCD (varchar 12): Số Căn cước công dân.
+SoDienThoai (varchar 10): Số điện thoại liên hệ.
+DiaChi (nvarchar 100): Địa chỉ thường trú.
+2. Bảng PhuongTien (Danh sách phương tiện)
+Chức năng: Định danh các xe đang lưu thông và quản lý thông tin kỹ thuật của xe.
+Khóa chính (PK): BienSoXe
+Các trường thông tin chi tiết: * BienSoXe (varchar 50): Biển kiểm soát phương tiện.
+MaChuXe (varchar 50 - FK): Khóa ngoại liên kết tới chủ xe.
+LoaiXe (varchar 50): Loại phương tiện (Ô tô con, xe máy,...).
+NhanHieu (varchar 50): Thương hiệu xe (Honda, Toyota,...).
+MauSac (varchar 50): Màu sơn của xe.
+3. Bảng LoiViPham (Từ điển lỗi giao thông)
+Chức năng: Lưu trữ từ điển chuẩn hóa các quy định, mức phạt để dùng chung.
+Khóa chính (PK): MaLoi
+Các trường thông tin chi tiết: * MaLoi (varchar 50): Mã lỗi vi phạm.
+TenLoi (nvarchar 255): Tên hành vi vi phạm.
+MucPhatTien (decimal 12,2): Số tiền phạt quy định.
+HinhThucPhatBoSung (nvarchar 255): Hình thức phạt đi kèm (VD: Tước GPLX).
+4. Bảng HoSoViPham (Lịch sử/Biên bản vi phạm)
+Chức năng: Bảng giao dịch trung tâm (Transaction table), lưu lại sự kiện phương tiện mắc lỗi.
+Khóa chính (PK): MaHoSo
+Các trường thông tin chi tiết: * MaHoSo (varchar 50): Mã biên bản/Hồ sơ vi phạm.
+BienSoXe (varchar 50 - FK): Biển số xe vi phạm.
+MaLoi (varchar 50 - FK): Lỗi vi phạm.
+ThoiGianViPham (datetime / timestamp): Ngày giờ xảy ra vi phạm.
+DiaDiemViPham (nvarchar 255): Vị trí camera ghi nhận.
+TrangThai (nvarchar 50): Tình trạng xử lý (VD: Chưa nộp phạt).
+5. Bảng HinhAnhChungCu (Tài liệu minh chứng)
+Chức năng: Lưu trữ các đường dẫn tệp đa phương tiện phục vụ cho đối soát.
+Khóa chính (PK): MaHinhAnh
+Các trường thông tin chi tiết: * MaHinhAnh (varchar 50): Mã ID của hình ảnh/video.
+MaHoSo (varchar 50 - FK): Tham chiếu tới hồ sơ vi phạm tương ứng.
+URL_HinhAnh (varchar 500): Đường dẫn lưu trữ file trên máy chủ.
+GhiChu (nvarchar 255): Chú thích thêm cho hình ảnh (Góc chụp toàn cảnh, góc zoom cận,...).
+IV. Phân Tích Các Mối Quan Hệ (Relationships & Constraints)
+Để cấu trúc các bảng rời rạc thành một hệ thống thông tin hoàn chỉnh, các ràng buộc Khóa ngoại (Foreign Keys) và mối quan hệ (Relationships) được thiết lập như sau:
+1. Quan hệ Chủ Xe và Phương Tiện: 1 - N (Association/Aggregation)
+Bảng PhuongTien chứa MaChuXe làm Khóa ngoại.
+Giải thích: Một chủ xe sở hữu nhiều phương tiện, nhưng một phương tiện chỉ thuộc về một chủ xe.
+2. Quan hệ Phương Tiện và Hồ Sơ Vi Phạm: 1 - N (Association)
+Bảng HoSoViPham chứa BienSoXe làm Khóa ngoại.
+Giải thích: Một chiếc xe có thể mắc nhiều lỗi (có nhiều hồ sơ), nhưng một hồ sơ ghi nhận đích danh một biển số xe vi phạm.
+3. Quan hệ Lỗi Vi Phạm và Hồ Sơ Vi Phạm: 1 - N (Association)
+Bảng HoSoViPham chứa MaLoi làm Khóa ngoại.
+Giải thích: Một quy định lỗi (VD: Vượt đèn đỏ) được áp dụng cho nhiều hồ sơ của các xe khác nhau, nhưng mỗi hồ sơ chỉ ánh xạ đến một mã lỗi để tính tiền phạt.
+4. Quan hệ Hồ Sơ Vi Phạm và Hình Ảnh Chứng Cứ: 1 - N (Composition)
+Bảng HinhAnhChungCu chứa MaHoSo làm Khóa ngoại.
+Giải thích: Một hồ sơ vi phạm đính kèm nhiều hình ảnh bằng chứng. Đây là quan hệ Cấu thành (Composition) có vòng đời phụ thuộc chặt chẽ: Các hình ảnh bằng chứng chỉ có giá trị pháp lý và tồn tại khi gắn với một hồ sơ cụ thể. Nếu hồ sơ bị xóa, hình ảnh cũng bị xóa theo.
+5. Các Ràng Buộc Toàn Vẹn Dữ Liệu Khác (Data Constraints) Bên cạnh các ràng buộc Khóa chính (Primary Key) và Khóa ngoại (Foreign Key), hệ thống còn áp dụng các ràng buộc toàn vẹn dữ liệu nghiêm ngặt ở cấp độ cơ sở dữ liệu để đảm bảo tính chính xác và hợp lệ của dữ liệu đầu vào:
+Ràng buộc (UNIQUE Constraint):
+Áp dụng tại bảng ChuXe: Cột CCCD phải thiết lập UNIQUE.
+Giải thích: Mỗi công dân chỉ có một số Căn cước công dân duy nhất, hệ thống sẽ báo lỗi ngay lập tức nếu quản trị viên nhập trùng số CCCD của một người đã tồn tại trong cơ sở dữ liệu.
+Ràng buộc MIỀN GIÁ TRỊ (CHECK Constraint):
+Bảng LoiViPham: Ràng buộc cột MucPhatTien > 0. (Số tiền phạt không thể là số âm hoặc bằng 0).
+Bảng HoSoViPham: Ràng buộc cột TrangThai chỉ được phép nhận một trong hai giá trị là N'Chưa nộp phạt' hoặc N'Đã nộp phạt'. Điều này giúp tránh tình trạng rác dữ liệu do lỗi đánh máy.
+Bảng HoSoViPham: Ràng buộc cột ThoiGianViPham <= GETDATE(). (Thời gian ghi nhận vi phạm không được phép là một mốc thời gian trong tương lai).
+Ràng buộc MẶC ĐỊNH (DEFAULT Constraint):
+Áp dụng tại bảng HoSoViPham: Cột TrangThai được gán giá trị mặc định (DEFAULT) là N'Chưa nộp phạt'.
+Giải thích: Theo logic nghiệp vụ, khi một hồ sơ vi phạm mới được lập (INSERT), hiển nhiên người dân chưa đóng tiền, do đó hệ thống tự động điền trạng thái này để tiết kiệm thao tác cho cán bộ nhập liệu.
+Ràng buộc BẮT BUỘC (NOT NULL Constraint):
+Áp dụng cho các trường dữ liệu mang tính cốt lõi không được phép để trống như: HoTen, CCCD (Bảng ChuXe); TenLoi, MucPhatTien (Bảng LoiViPham); DiaDiemViPham (Bảng HoSoViPham) và URL_HinhAnh (Bảng HinhAnhChungCu).
+V. Đánh Giá Thiết Kế
+Thiết kế trên đảm bảo tối ưu hóa truy vấn tra cứu (Lookup). Khi người dùng nhập "Biển số xe", hệ thống thông qua các tác vụ JOIN từ bảng PhuongTien có thể truy xuất ngay lập tức thông tin ChuXe, quét toàn bộ HoSoViPham, đối chiếu LoiViPham để tính tổng tiền phạt, và trích xuất HinhAnhChungCu để hiển thị lên màn hình (UI) với tốc độ cao nhất.
+
+
+
+VI. CÁC TÍNH NĂNG DỰ KIẾN VÀ GIẢI PHÁP CÔNG NGHỆ
+Nhằm tối ưu hóa quy trình nghiệp vụ cho cơ quan chức năng, đồng thời nâng cao chất lượng dịch vụ công và tính minh bạch trong xử lý vi phạm, phân hệ Quản trị (Admin) của hệ thống được thiết kế với các nhóm tính năng trọng tâm sau:
+1. Nhóm Tính Năng Quản Trị Cốt Lõi (Core Management)
+Quản lý dữ liệu bất đồng bộ (Asynchronous CRUD): Mọi thao tác Thêm, Sửa, Xóa thông tin (Chủ xe, Phương tiện, Lỗi vi phạm) được thực hiện ngầm qua công nghệ AJAX. Hệ thống phản hồi trạng thái tức thì qua các thông báo (Toast Notifications) mà không cần tải lại toàn bộ trang web, giúp cán bộ xử lý công việc liên tục và nhanh chóng.
+Hỗ trợ nhập liệu thông minh (Auto-fill Information): Khi quản trị viên nhập Biển số xe vào form lập hồ sơ vi phạm mới, hệ thống sẽ tự động gọi API ngầm để truy vấn dữ liệu từ bảng PhuongTien và ChuXe. Các thông tin như Tên chủ xe, Loại xe, Nhãn hiệu sẽ tự động hiển thị, giúp giảm thiểu tối đa sai sót do nhập liệu thủ công.
+Quản lý trạng thái hồ sơ: Cho phép cập nhật tình trạng nộp phạt (Chưa nộp/Đã nộp) và đính kèm các chứng cứ hình ảnh/video tương ứng cho từng hồ sơ cụ thể.
+2. Nhóm Tính Năng Hỗ Trợ & Chăm Sóc Công Dân (Citizen Support)
+Hệ thống xử lý Khiếu nại trực tuyến (Ticketing System): Cung cấp giao diện tiếp nhận phản hồi từ người dân đối với các trường hợp nghi ngờ sai sót (ví dụ: xe đã bán nhưng chưa sang tên, biển số bị làm giả). Quản trị viên có thể phản hồi, phê duyệt hoặc tạm đình chỉ hồ sơ ngay trên hệ thống, giúp giảm bớt thủ tục hành chính trực tiếp.
+Tự động gửi thông báo (Automated Alerts): Tích hợp thư viện (như PHPMailer) để tự động gửi Email thông báo tới chủ phương tiện ngay khi có hồ sơ vi phạm mới được khởi tạo trên hệ thống, giúp người dân nắm bắt thông tin kịp thời để thực hiện nghĩa vụ.
+Kênh hỗ trợ trực tuyến (Live Chat Support): Ứng dụng AJAX để xây dựng khung chat thời gian thực, cho phép cán bộ trực ban giải đáp các thắc mắc về quy trình nộp phạt hoặc thủ tục giải quyết vi phạm cho người dân ngay trên giao diện web.
+3. Hệ Thống Báo Cáo & Thống Kê Chuyên Sâu (Analytics & Reporting)
+Thống kê "Danh sách đen" (Top Violators): Tự động tổng hợp và xếp hạng các phương tiện hoặc chủ xe có số lần vi phạm nhiều nhất hoặc tổng số tiền phạt chưa nộp cao nhất để cơ quan chức năng có biện pháp xử lý mạnh tay (ví dụ: gửi danh sách sang cục Đăng kiểm).
+Báo cáo Dashboard trực quan: Sử dụng các thư viện đồ họa (như Chart.js) kết hợp AJAX để hiển thị biểu đồ tỷ lệ vi phạm theo địa điểm, thời gian hoặc tình trạng nộp phạt, hỗ trợ lãnh đạo trong việc đưa ra các quyết định điều phối lực lượng tuần tra.
+Kết xuất dữ liệu (Export Data): Hỗ trợ xuất các danh sách thống kê ra định dạng Excel hoặc PDF để phục vụ công tác lưu trữ văn bản giấy hoặc báo cáo cấp trên.
+4. Kiến Trúc Và Cấu Hình Công Nghệ (Technology Stack)
+Hệ thống được xây dựng trên mô hình Client-Server hiện đại, đảm bảo tính bảo mật và hiệu suất:
+Frontend: Sử dụng HTML5, CSS3, Bootstrap tạo giao diện Admin Dashboard chuyên nghiệp. Sử dụng JavaScript (Fetch API/jQuery AJAX) để xử lý tương tác không làm mới trang.
+Backend (Chủ đạo): Sử dụng ngôn ngữ PHP để xây dựng các RESTful API. PHP tiếp nhận yêu cầu từ AJAX, thực hiện kiểm tra quyền hạn (Authorization), xử lý logic nghiệp vụ và trả kết quả về dưới định dạng JSON.
+Database: Hệ quản trị SQL Server được cấu trúc theo chuẩn 3NF, đảm bảo toàn vẹn dữ liệu thông qua các ràng buộc (Primary Key, Foreign Key, Check, Unique).
+Bảo mật: Sử dụng thư viện PDO (PHP Data Objects) với cơ chế Prepared Statements để ngăn chặn tuyệt đối các cuộc tấn công SQL Injection, đảm bảo an toàn cho dữ liệu quản lý nhà nước.
+
