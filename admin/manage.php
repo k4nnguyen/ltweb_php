@@ -70,10 +70,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['ajax_action'])) {
     $maLoi = trim($_POST['maLoi']);
     
     // Chuẩn hóa Datetime cho SQL Server
-    $thoiGian = str_replace('T', ' ', $_POST['thoiGian']); 
+    $thoiGian = trim($_POST['thoiGian']); // Trim first
+    $thoiGian = str_replace('T', ' ', $thoiGian); 
+    
+    // Ensure format YYYY-MM-DD HH:mm:ss
     if (strlen($thoiGian) == 16) {
         $thoiGian .= ':00';
     }
+    
+    error_log("DEBUG thoiGian: '" . $thoiGian . "' (length: " . strlen($thoiGian) . ")");
     
     $diaDiem = trim($_POST['diaDiem']);
     $trangThai = trim($_POST['trangThai']);
@@ -81,6 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['ajax_action'])) {
 
     try {
         if ($action == 'add') {
+            // Validate required fields
+            if (empty($bienSoXe) || empty($maLoi) || empty($thoiGian) || empty($diaDiem)) {
+                echo json_encode(['success' => false, 'msg' => 'Các trường bắt buộc không được để trống']);
+                exit;
+            }
+            
             $stmt = $conn->prepare("INSERT INTO HoSoViPham (MaHoSo, BienSoXe, MaLoi, ThoiGianViPham, DiaDiemViPham, TrangThai) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$maHoSo, $bienSoXe, $maLoi, $thoiGian, $diaDiem, $trangThai]);
             
@@ -742,13 +753,50 @@ function viewHsDetail(maHoSo) {
 
 function submitViPhamForm() {
     const form = document.getElementById('viPhamForm');
-    const formData = new FormData(form);
-    formData.append('ajax_action', document.getElementById('frmAction').value);
+    const action = document.getElementById('frmAction').value;
+    let formData;
+    
+    // Khi edit: re-enable bienSoXe để submit được (nó disabled cho readonly visual only)
+    if (action === 'edit') {
+        const bienSoXeField = document.getElementById('frmBienSoXe');
+        if (bienSoXeField) {
+            bienSoXeField.disabled = false;
+            // Tạo FormData mới sau khi enable field
+            formData = new FormData(form);
+            // Disable lại sau khi lấy dữ liệu
+            bienSoXeField.disabled = true;
+        }
+    } else {
+        formData = new FormData(form);
+    }
+    
+    formData.append('ajax_action', action);
     
     // Kiểm tra required fields
-    if (!formData.get('bienSoXe') || !formData.get('maLoi') || !formData.get('thoiGian') || !formData.get('diaDiem')) {
-        alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
-        return;
+    // Khi ADD: cần bienSoXe, maLoi, thoiGian, diaDiem
+    // Khi EDIT: chỉ cần maLoi, thoiGian, diaDiem (bienSoXe là readonly)
+    if (action === 'add') {
+        if (!formData.get('bienSoXe') || !formData.get('maLoi') || !formData.get('thoiGian') || !formData.get('diaDiem')) {
+            alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+            // Restore disabled state nếu edit
+            if (document.getElementById('frmBienSoXe')) {
+                document.getElementById('frmBienSoXe').disabled = true;
+            }
+            return;
+        }
+    } else if (action === 'edit') {
+        if (!formData.get('maLoi') || !formData.get('thoiGian') || !formData.get('diaDiem')) {
+            alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+            // Restore disabled state
+            if (document.getElementById('frmBienSoXe')) {
+                document.getElementById('frmBienSoXe').disabled = true;
+            }
+            return;
+        }
+        // Restore disabled state cho visual
+        if (document.getElementById('frmBienSoXe')) {
+            document.getElementById('frmBienSoXe').disabled = true;
+        }
     }
     
     fetch(window.location.href, {
@@ -763,11 +811,19 @@ function submitViPhamForm() {
             location.reload();
         } else {
             alert('Lỗi: ' + data.msg);
+            // Restore disabled state nếu edit
+            if (action === 'edit' && document.getElementById('frmBienSoXe')) {
+                document.getElementById('frmBienSoXe').disabled = true;
+            }
         }
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Lỗi khi xử lý yêu cầu!');
+        // Restore disabled state nếu edit
+        if (action === 'edit' && document.getElementById('frmBienSoXe')) {
+            document.getElementById('frmBienSoXe').disabled = true;
+        }
     });
 }
 

@@ -10,10 +10,10 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Form Handler (Load SAU jQuery & Bootstrap) -->
-    <script src="/admin_vi_pham/assets/js/form_handler.js"></script>
+    <script src="/admin_vi_pham/assets/js/form_handler.js?v=<?php echo time(); ?>"></script>
     <!-- Session Timer (Countdown real-time) -->
     <script src="/admin_vi_pham/assets/js/session-timer.js"></script>
-    <!-- Custom Script -->
-    <script src="/admin_vi_pham/assets/js/main.js"></script>
+    <!-- Custom Script (with cache bust) -->
+    <script src="/admin_vi_pham/assets/js/main.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

@@ -1,9 +1,10 @@
 <?php
 // ajax/fetch_vehicle.php
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 require_once '../config/database.php';
 
 if(isset($_POST['plate'])) {
-    $plate = $_POST['plate'];
+    $plate = trim($_POST['plate']);
     try {
         $stmt = $conn->prepare("
             SELECT hs.MaHoSo, lvp.TenLoi, hs.ThoiGianViPham, hs.DiaDiemViPham, lvp.MucPhatTien, hs.TrangThai 

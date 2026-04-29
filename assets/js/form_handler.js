@@ -37,7 +37,10 @@ function editHs(data) {
   $("#modalTitle").html('<i class="fa-solid fa-pen-to-square me-2"></i>Cập Nhật Hồ Sơ: ' + data.MaHoSo);
   $("#frmAction").val("edit");
   $("#frmMaHoSo").val(data.MaHoSo);
+
+  // Disable bienSoXe (readonly, cannot edit vehicle plate)
   $("#frmBienSoXe").val(data.BienSoXe).trigger("change");
+  $("#frmBienSoXe").prop("readonly", true).prop("disabled", true).css("pointerEvents", "none").css("backgroundColor", "#e9ecef");
 
   console.log("Setting MaLoi to:", data.MaLoi);
   setSelectValue("#frmMaLoi", data.MaLoi);
