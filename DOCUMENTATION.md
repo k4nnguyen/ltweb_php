@@ -3,7 +3,8 @@
 ## 🎯 Mục Đích Hệ Thống
 
 Quản lý hồ sơ vi phạm giao thông, bao gồm: thêm/sửa/xóa hồ sơ, lưu trữ ảnh chứng cứ, xuất báo cáo, quản lý tài khoản người dùng và đăng nhập/đăng xuất.
-
+(Để tên folder là ltweb_php, sửa phần listen 80 -> 8080)
+trước khi vào thì chạy localhost:8080/ltweb_php/setup.php
 ---
 
 ## 📁 Cấu Trúc Thư Mục
