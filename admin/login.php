@@ -1,6 +1,10 @@
 <?php
 // admin/login.php
 
+// BẬT ERROR REPORTING ĐỂ DEBUG
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Set timezone cho Vietnam
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 

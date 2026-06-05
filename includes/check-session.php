@@ -27,7 +27,7 @@ $SESSION_TIMEOUT = 30 * 60;  // ← ĐỔI CON SỐ NÀY ĐỂ THAY ĐỔI TIMEO
 // Kiểm tra xem admin đã login chưa
 if (!isset($_SESSION['admin_id'])) {
     // Chưa login -> redirect đến login page
-    header('Location: /admin_vi_pham/admin/login.php');
+    header('Location: /ltweb_php/admin/login.php');
     exit;
 }
 
@@ -38,7 +38,7 @@ if (isset($_SESSION['login_time'])) {
     if ($timeFromLogin > $SESSION_TIMEOUT) {
         // Session hết hạn -> destroy và redirect
         session_destroy();
-        header('Location: /admin_vi_pham/admin/login.php?timeout=1');
+        header('Location: /ltweb_php/admin/login.php?timeout=1');
         exit;
     }
 }
@@ -46,7 +46,7 @@ if (isset($_SESSION['login_time'])) {
 // Kiểm tra xem có logout request không
 if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: /admin_vi_pham/admin/login.php?logout=1');
+    header('Location: /ltweb_php/admin/login.php?logout=1');
     exit;
 }
 
@@ -58,7 +58,7 @@ if (!isset($_SESSION['login_time'])) {
     error_log("WARNING: \$_SESSION['login_time'] không được set! Login ID: " . $_SESSION['admin_id']);
     // Force redirect về login lại
     session_destroy();
-    header('Location: /admin_vi_pham/admin/login.php?error=session');
+    header('Location: /ltweb_php/admin/login.php?error=session');
     exit;
 }
 
