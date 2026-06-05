@@ -16,10 +16,11 @@ try {
     
     // Test 3: Search for "29"
     $stmt = $conn->prepare("
-        SELECT TOP 10 BienSoXe 
+        SELECT BienSoXe 
         FROM PhuongTien 
-        WHERE BienSoXe LIKE :kw COLLATE SQL_Latin1_General_CP1_CI_AI
+        WHERE BienSoXe LIKE :kw
         ORDER BY BienSoXe ASC
+        LIMIT 10
     ");
     $stmt->execute(['kw' => "%29%"]);
     $searchResults = $stmt->fetchAll(PDO::FETCH_COLUMN);

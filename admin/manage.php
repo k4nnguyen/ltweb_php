@@ -192,7 +192,7 @@ if (!empty($search)) {
     if ($searchType == 'BienSoXe') {
         $sql .= " AND pt.BienSoXe LIKE ?";
     } elseif ($searchType == 'HoTen') {
-        $sql .= " AND cx.HoTen LIKE ? COLLATE SQL_Latin1_General_CP1_CI_AI";
+        $sql .= " AND cx.HoTen LIKE ?";
     } elseif ($searchType == 'CCCD') {
         $sql .= " AND cx.CCCD LIKE ?";
     } elseif ($searchType == 'SoDienThoai') {
@@ -229,7 +229,7 @@ if (!empty($search)) {
     if ($searchType == 'BienSoXe') {
         $countSql .= " AND pt.BienSoXe LIKE ?";
     } elseif ($searchType == 'HoTen') {
-        $countSql .= " AND cx.HoTen LIKE ? COLLATE SQL_Latin1_General_CP1_CI_AI";
+        $countSql .= " AND cx.HoTen LIKE ?";
     } elseif ($searchType == 'CCCD') {
         $countSql .= " AND cx.CCCD LIKE ?";
     } elseif ($searchType == 'SoDienThoai') {
@@ -248,10 +248,10 @@ if ($page > $totalPages && $totalPages > 0) {
 }
 
 $offset = ($page - 1) * $itemsPerPage;
-$sql .= " OFFSET CAST(? AS INT) ROWS FETCH NEXT CAST(? AS INT) ROWS ONLY";
+$sql .= " LIMIT ? OFFSET ?";
 
 $stmt = $conn->prepare($sql);
-$paramsWithPagination = array_merge($params, [(int)$offset, (int)$itemsPerPage]);
+$paramsWithPagination = array_merge($params, [(int)$itemsPerPage, (int)$offset]);
 $stmt->execute($paramsWithPagination);
 $hoSoList = $stmt->fetchAll();
 
