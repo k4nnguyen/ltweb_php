@@ -18,8 +18,8 @@ try {
             cx.SoDienThoai,
             COUNT(DISTINCT pt.BienSoXe) as SoPhuongTien,
             COUNT(DISTINCT hs.MaHoSo) as TongViPham,
-            SUM(CASE WHEN hs.TrangThai = N'Đã nộp phạt' THEN 1 ELSE 0 END) as ViPhamDaNop,
-            SUM(CASE WHEN hs.TrangThai = N'Chưa nộp phạt' THEN 1 ELSE 0 END) as ViPhamChuaNop
+            SUM(CASE WHEN hs.TrangThai = 'Đã nộp phạt' THEN 1 ELSE 0 END) as ViPhamDaNop,
+            SUM(CASE WHEN hs.TrangThai = 'Chưa nộp phạt' THEN 1 ELSE 0 END) as ViPhamChuaNop
         FROM ChuXe cx
         LEFT JOIN PhuongTien pt ON cx.MaChuXe = pt.MaChuXe
         LEFT JOIN HoSoViPham hs ON pt.BienSoXe = hs.BienSoXe

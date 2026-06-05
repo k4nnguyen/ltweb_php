@@ -16,7 +16,7 @@ try {
     $totalRecords = $stmt1->fetch()['Total'];
 
     // Tổng số tiền chưa nộp (TrangThai = 'Chưa nộp phạt')
-    $stmt2 = $conn->query("SELECT SUM(lvp.MucPhatTien) as Unpaid FROM HoSoViPham hs JOIN LoiViPham lvp ON hs.MaLoi = lvp.MaLoi WHERE hs.TrangThai = N'Chưa nộp phạt'");
+    $stmt2 = $conn->query("SELECT SUM(lvp.MucPhatTien) as Unpaid FROM HoSoViPham hs JOIN LoiViPham lvp ON hs.MaLoi = lvp.MaLoi WHERE hs.TrangThai = 'Chưa nộp phạt'");
     $unpaidFines = $stmt2->fetch()['Unpaid'] ?? 0;
 } catch (PDOException $e) {
     $totalRecords = 0;
