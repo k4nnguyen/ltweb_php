@@ -17,7 +17,7 @@ function updateSessionTimer() {
   if (timerElement.length === 0) return;
 
   $.ajax({
-    url: "/admin_vi_pham/ajax/session-info.php",
+    url: "/ltweb_php/ajax/session-info.php",
     method: "POST",
     dataType: "json",
     timeout: 3000,
@@ -39,11 +39,11 @@ function updateSessionTimer() {
 
         // Nếu hết thời gian, redirect
         if (data.remaining_seconds <= 0) {
-          window.location.href = "/admin_vi_pham/admin/login.php?timeout=1";
+          window.location.href = "/ltweb_php/admin/login.php?timeout=1";
         }
       } else {
         // Session hết hạn, redirect
-        window.location.href = "/admin_vi_pham/admin/login.php?timeout=1";
+        window.location.href = "/ltweb_php/admin/login.php?timeout=1";
       }
     },
     error: function () {

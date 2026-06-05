@@ -5,7 +5,7 @@ $(document).ready(function () {
     var keyword = $(this).val().trim();
     if (keyword.length >= 2) {
       $.ajax({
-        url: "/admin_vi_pham/ajax/auto_suggest.php",
+        url: "/ltweb_php/ajax/auto_suggest.php",
         method: "POST",
         data: { keyword: keyword },
         success: function (response) {
@@ -42,7 +42,7 @@ $(document).ready(function () {
       return;
     }
     $.ajax({
-      url: "/admin_vi_pham/ajax/fetch_vehicle.php",
+      url: "/ltweb_php/ajax/fetch_vehicle.php",
       method: "POST",
       data: { plate: plate },
       success: function (response) {

@@ -7,7 +7,7 @@ $adminName = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : 'Admin';
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container-fluid px-4">
         <!-- Brand -->
-        <a class="navbar-brand fw-bold" href="/admin_vi_pham/admin/index.php">
+        <a class="navbar-brand fw-bold" href="/ltweb_php/admin/index.php">
             <i class="fa-solid fa-user-shield me-2"></i><span>Vi Phạm Admin</span>
         </a>
         
@@ -22,24 +22,24 @@ $adminName = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : 'Admin';
             <ul class="navbar-nav me-auto">
                 <?php if ($isLoggedIn): ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin_vi_pham/admin/index.php" title="Xem thống kê và tra cứu vi phạm">
+                        <a class="nav-link" href="/ltweb_php/admin/index.php" title="Xem thống kê và tra cứu vi phạm">
                             <i class="fa-solid fa-chart-pie me-1"></i> Thống Kê
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin_vi_pham/admin/manage.php" title="Quản lý hồ sơ vi phạm">
+                        <a class="nav-link" href="/ltweb_php/admin/manage.php" title="Quản lý hồ sơ vi phạm">
                             <i class="fa-solid fa-list-check me-1"></i> Quản Lý
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin_vi_pham/admin/users.php" title="Xem thông tin người dùng">
+                        <a class="nav-link" href="/ltweb_php/admin/users.php" title="Xem thông tin người dùng">
                             <i class="fa-solid fa-users me-1"></i> Người Dùng
                         </a>
                     </li>
                     <?php require_once __DIR__ . '/helpers/auth.php'; ?>
                     <?php if (isAdmin()): ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin_vi_pham/admin/logs.php" title="Xem nhật ký hoạt động hệ thống">
+                        <a class="nav-link" href="/ltweb_php/admin/logs.php" title="Xem nhật ký hoạt động hệ thống">
                             <i class="fa-solid fa-history me-1"></i> System Log
                         </a>
                     </li>
@@ -113,7 +113,7 @@ $adminName = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : 'Admin';
 <script>
     // Update countdown mỗi giây
     function updateCountdown() {
-        fetch('/admin_vi_pham/ajax/session-info.php')
+        fetch('/ltweb_php/ajax/session-info.php')
             .then(response => response.json())
             .then(data => {
                 if (data.success && document.getElementById('countdown-display')) {

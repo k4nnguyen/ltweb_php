@@ -1,11 +1,11 @@
-admin_vi_pham/
+ltweb_php/
     ├── admin/                 # Khu vực dành riêng cho Admin (cần login)
     │   ├── login.php          # Trang đăng nhập Admin
     │   ├── index.php          # Dashboard thống kê
     │   └── manage.php         # Trang thêm/sửa/xóa lỗi vi phạm
-    ├── ajax/                  # Chứa các file PHP chỉ để xử lý request từ AJAX (trả về JSON)
-    │   ├── fetch_vehicle.php  # Xử lý tìm kiếm biển số xe
-    │   └── auto_suggest.php   # Xử lý tự động gợi ý biển số
+    ├── ajax/                  # Chứa các file PHP chỉ để xỚ lý request từ AJAX (trả về JSON)
+    │   ├── fetch_vehicle.php  # Xử lý tìm kiếm biến số xe
+    │   └── auto_suggest.php   # Xử lý tự động gợi Ý biến số
     ├── assets/                # Chứa tài nguyên tĩnh
     │   ├── css/               # File CSS custom (ngoài Bootstrap)
     │   ├── js/                # File Javascript (chứa code gọi AJAX)

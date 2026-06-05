@@ -615,7 +615,7 @@ function resetForm() {
 
 // View hồ sơ chi tiết với ảnh
 function viewHsDetail(maHoSo) {
-    fetch('/admin_vi_pham/ajax/get_hs_detail.php?maHoSo=' + encodeURIComponent(maHoSo))
+    fetch('/ltweb_php/ajax/get_hs_detail.php?maHoSo=' + encodeURIComponent(maHoSo))
         .then(response => response.json())
         .then(data => {
             if (!data.success) {
@@ -719,7 +719,7 @@ function viewHsDetail(maHoSo) {
                                 <i class="fa-solid fa-image me-2"></i>Ảnh Chứng Cứ
                             </h6>
                             <div class="text-center">
-                                <img src="/admin_vi_pham/img/evidence/${img.URL_HinhAnh}" 
+                                <img src="/ltweb_php/img/evidence/${img.URL_HinhAnh}" 
                                      alt="Ảnh chứng cứ" 
                                      style="max-width: 100%; max-height: 400px;" 
                                      class="img-fluid border rounded">
@@ -839,7 +839,7 @@ function exportData(format) {
     const sortDir = document.querySelector('select[name="dir"]')?.value || 'DESC';
     
     // Build export URL with all parameters
-    let url = '/admin_vi_pham/ajax/export_violations.php?format=' + format;
+    let url = '/ltweb_php/ajax/export_violations.php?format=' + format;
     if (searchType) url += '&searchType=' + encodeURIComponent(searchType);
     if (searchValue) url += '&searchValue=' + encodeURIComponent(searchValue);
     url += '&sort=' + encodeURIComponent(sortField);

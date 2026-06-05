@@ -12,7 +12,7 @@
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS (with cache bust) -->
-    <link rel="stylesheet" href="/admin_vi_pham/assets/css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/ltweb_php/assets/css/style.css?v=<?php echo time(); ?>">
 </head>
 <body class="bg-light d-flex flex-column min-vh-100" style="padding-top: 65px;">
     <style>

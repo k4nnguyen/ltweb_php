@@ -354,7 +354,7 @@ rsort($uniqueDates);
 <script>
     // Update countdown mỗi 5 giây
     function updateSessionCountdown() {
-        fetch('/admin_vi_pham/ajax/session-info.php')
+        fetch('/ltweb_php/ajax/session-info.php')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

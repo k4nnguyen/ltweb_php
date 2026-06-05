@@ -9,7 +9,7 @@ Quản lý hồ sơ vi phạm giao thông, bao gồm: thêm/sửa/xóa hồ sơ,
 ## 📁 Cấu Trúc Thư Mục
 
 ```
-admin_vi_pham/
+ltweb_php/
 ├── admin/               # Trang quản trị (yêu cầu đăng nhập)
 │   ├── login.php       # Xác thực người dùng
 │   ├── manage.php      # Quản lý hồ sơ vi phạm
